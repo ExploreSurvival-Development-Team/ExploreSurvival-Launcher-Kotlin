@@ -68,3 +68,5 @@ distTmp/
 outTmp/
 /test.output
 /kotlin-native/dist
+
+esl.json
