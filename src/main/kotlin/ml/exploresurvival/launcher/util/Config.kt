@@ -4,12 +4,12 @@ import com.google.gson.Gson
 import java.io.File
 
 data class ConfigData(
-    val userName: String,
-    val session: String,
-    val uuid: String,
-    val offlineLogin: Boolean,
-    val JvmMemory: Int,
-    val expire: Long
+    var userName: String,
+    var session: String,
+    var uuid: String,
+    var offlineLogin: Boolean,
+    var JvmMemory: Int,
+    var expire: Long
 )
 
 object Config {
