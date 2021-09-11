@@ -36,15 +36,15 @@ fun main() {
                 """.trimIndent())
                 cmd[0] == "userinfo" -> {
                     if (Config.configData.userName != "") {
-                        val sessionString = if (Config.configData.offlineLogin) "类型          离线登录" else "session有效期 ${SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Config.configData.expire)}(${if (System.currentTimeMillis() < Config.configData.expire) "未过期" else "已过期"})\n类型          在线登录"
-                        println("用户名        ${Config.configData.userName}")
+                        val sessionString = if (Config.configData.offlineLogin) "类型: 离线登录" else "session有效期: ${SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Config.configData.expire)}(${if (System.currentTimeMillis() < Config.configData.expire) "未过期" else "已过期"})\n类型: 在线登录"
+                        println("用户名: ${Config.configData.userName}")
                         println(sessionString)
                     } else {
                         println("未登录")
                     }
                 }
                 cmd[0] == "login" -> {
-                    if (Config.configData.session == "") {
+                    if (Config.configData.userName == "") {
                         if (cmd.size == 2 && cmd[1] == "offline") {
                             print("用户名: ")
                             val username = readLine()
@@ -66,7 +66,12 @@ fun main() {
                                 val request = Request.Builder()
                                     .url("https://www.opencomputers.ml:7331/ExploreSurvival/login.jsp?username=${URLEncoder.encode(username, Charsets.UTF_8)}&password=${URLEncoder.encode(password, Charsets.UTF_8)}")
                                     .build()
-                                val resp = gson.fromJson(client.newCall(request).execute().body?.string() ?: "{}", Response::class.java)
+                                var resp = Response(success = false,session = "",uuid = "",expire = 0,reason = "未知错误")
+                                try {
+                                    resp = gson.fromJson(client.newCall(request).execute().body?.string() ?: "{}", Response::class.java)
+                                } catch (e: Exception) {
+                                    println("\n${e.message}")
+                                }
                                 if (resp.success) {
                                     Config.configData.userName = username
                                     Config.configData.session = resp.session
@@ -76,7 +81,7 @@ fun main() {
                                     Config.save()
                                     println("OK")
                                 } else {
-                                    println("无法登录: ${resp.reason}")
+                                    println(resp.reason)
                                 }
                             }
                         }
@@ -85,7 +90,7 @@ fun main() {
                     }
                 }
                 cmd[0] == "logout" -> {
-                    if (Config.configData.session != "") {
+                    if (Config.configData.userName != "") {
                         Config.configData.userName = ""
                         Config.configData.session = ""
                         Config.configData.uuid = ""
